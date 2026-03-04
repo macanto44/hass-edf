@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# Home Assistant
+*.db
+*.db-shm
+*.db-wal
+home-assistant.log
+home-assistant_v2.db
+.storage/
+custom_components/__pycache__/
+
+# BMAD output
+_bmad/
+_bmad-output/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets
+secrets.yaml
+.env
+
+# Agent IA
+.claude

@@ -1,0 +1,141 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Type de contrat",
+        "description": "S\u00e9lectionnez votre type de contrat EDF.",
+        "data": {
+          "contract_type": "Type de contrat"
+        },
+        "data_description": {
+          "contract_type": "Base, HP/HC ou Tempo"
+        }
+      },
+      "power": {
+        "title": "Puissance souscrite",
+        "description": "S\u00e9lectionnez votre puissance souscrite en kVA.",
+        "data": {
+          "power_kva": "Puissance (kVA)"
+        }
+      },
+      "hc_ranges": {
+        "title": "Heures creuses",
+        "description": "Saisissez les plages horaires HC au format HH:MM-HH:MM, s\u00e9par\u00e9es par des virgules pour plusieurs plages.",
+        "data": {
+          "hc_ranges": "Plages HC"
+        },
+        "data_description": {
+          "hc_ranges": "Exemple : 22:00-06:00 ou 01:30-07:30, 12:30-14:30"
+        }
+      },
+      "scan_interval": {
+        "title": "Fr\u00e9quence de mise \u00e0 jour",
+        "description": "S\u00e9lectionnez la fr\u00e9quence de rafra\u00eechissement des donn\u00e9es.",
+        "data": {
+          "scan_interval": "Intervalle de mise \u00e0 jour"
+        }
+      }
+    },
+    "error": {
+      "invalid_hc_format": "Format de plage HC invalide. Utilisez HH:MM-HH:MM."
+    },
+    "abort": {
+      "reconfigure_successful": "Configuration mise \u00e0 jour avec succ\u00e8s."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options EDF Tempo",
+        "description": "Modifiez les param\u00e8tres de l\u2019int\u00e9gration. Le type de contrat ne peut pas \u00eatre chang\u00e9 ici.",
+        "data": {
+          "power_kva": "Puissance (kVA)",
+          "scan_interval": "Intervalle de mise \u00e0 jour",
+          "hc_ranges": "Plages HC"
+        }
+      }
+    },
+    "error": {
+      "invalid_hc_format": "Format de plage HC invalide. Utilisez HH:MM-HH:MM."
+    },
+    "abort": {
+      "reconfigure_successful": "Configuration mise \u00e0 jour avec succ\u00e8s."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "abonnement_mensuel": {
+        "name": "Abonnement mensuel"
+      },
+      "tarif_ttc": {
+        "name": "Tarif TTC"
+      },
+      "tarif_actuel": {
+        "name": "Tarif actuel"
+      },
+      "periode_actuelle": {
+        "name": "P\u00e9riode actuelle",
+        "state": {
+          "HC": "Heures creuses",
+          "HP": "Heures pleines"
+        }
+      },
+      "tarif_hc": {
+        "name": "Tarif HC"
+      },
+      "tarif_hp": {
+        "name": "Tarif HP"
+      },
+      "couleur_aujourd_hui": {
+        "name": "Couleur aujourd\u2019hui",
+        "state": {
+          "Bleu": "Bleu",
+          "Blanc": "Blanc",
+          "Rouge": "Rouge",
+          "Inconnu": "Inconnu"
+        }
+      },
+      "couleur_demain": {
+        "name": "Couleur demain",
+        "state": {
+          "Bleu": "Bleu",
+          "Blanc": "Blanc",
+          "Rouge": "Rouge",
+          "Inconnu": "Inconnu"
+        }
+      },
+      "tarif_bleu_hc": {
+        "name": "Tarif Bleu HC"
+      },
+      "tarif_bleu_hp": {
+        "name": "Tarif Bleu HP"
+      },
+      "tarif_blanc_hc": {
+        "name": "Tarif Blanc HC"
+      },
+      "tarif_blanc_hp": {
+        "name": "Tarif Blanc HP"
+      },
+      "tarif_rouge_hc": {
+        "name": "Tarif Rouge HC"
+      },
+      "tarif_rouge_hp": {
+        "name": "Tarif Rouge HP"
+      },
+      "jours_bleus_restants": {
+        "name": "Jours bleus restants"
+      },
+      "jours_blancs_restants": {
+        "name": "Jours blancs restants"
+      },
+      "jours_rouges_restants": {
+        "name": "Jours rouges restants"
+      }
+    },
+    "binary_sensor": {
+      "heures_creuses": {
+        "name": "Heures creuses"
+      }
+    }
+  }
+}

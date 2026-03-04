@@ -1,0 +1,141 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Contract type",
+        "description": "Select your EDF electricity contract type.",
+        "data": {
+          "contract_type": "Contract type"
+        },
+        "data_description": {
+          "contract_type": "Base, Off-Peak/Peak, or Tempo"
+        }
+      },
+      "power": {
+        "title": "Subscribed power",
+        "description": "Select your subscribed power in kVA.",
+        "data": {
+          "power_kva": "Power (kVA)"
+        }
+      },
+      "hc_ranges": {
+        "title": "Off-peak hours",
+        "description": "Enter off-peak time ranges in HH:MM-HH:MM format, separated by commas for multiple ranges.",
+        "data": {
+          "hc_ranges": "Off-peak ranges"
+        },
+        "data_description": {
+          "hc_ranges": "Example: 22:00-06:00 or 01:30-07:30, 12:30-14:30"
+        }
+      },
+      "scan_interval": {
+        "title": "Update frequency",
+        "description": "Select how often data should be refreshed.",
+        "data": {
+          "scan_interval": "Update interval"
+        }
+      }
+    },
+    "error": {
+      "invalid_hc_format": "Invalid off-peak range format. Use HH:MM-HH:MM."
+    },
+    "abort": {
+      "reconfigure_successful": "Configuration updated successfully."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "EDF Tempo options",
+        "description": "Modify your integration settings. Contract type cannot be changed here.",
+        "data": {
+          "power_kva": "Power (kVA)",
+          "scan_interval": "Update interval",
+          "hc_ranges": "Off-peak ranges"
+        }
+      }
+    },
+    "error": {
+      "invalid_hc_format": "Invalid off-peak range format. Use HH:MM-HH:MM."
+    },
+    "abort": {
+      "reconfigure_successful": "Configuration updated successfully."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "abonnement_mensuel": {
+        "name": "Monthly subscription"
+      },
+      "tarif_ttc": {
+        "name": "TTC rate"
+      },
+      "tarif_actuel": {
+        "name": "Current rate"
+      },
+      "periode_actuelle": {
+        "name": "Current period",
+        "state": {
+          "HC": "Off-peak",
+          "HP": "Peak"
+        }
+      },
+      "tarif_hc": {
+        "name": "Off-peak rate"
+      },
+      "tarif_hp": {
+        "name": "Peak rate"
+      },
+      "couleur_aujourd_hui": {
+        "name": "Today's color",
+        "state": {
+          "Bleu": "Blue",
+          "Blanc": "White",
+          "Rouge": "Red",
+          "Inconnu": "Unknown"
+        }
+      },
+      "couleur_demain": {
+        "name": "Tomorrow's color",
+        "state": {
+          "Bleu": "Blue",
+          "Blanc": "White",
+          "Rouge": "Red",
+          "Inconnu": "Unknown"
+        }
+      },
+      "tarif_bleu_hc": {
+        "name": "Blue off-peak rate"
+      },
+      "tarif_bleu_hp": {
+        "name": "Blue peak rate"
+      },
+      "tarif_blanc_hc": {
+        "name": "White off-peak rate"
+      },
+      "tarif_blanc_hp": {
+        "name": "White peak rate"
+      },
+      "tarif_rouge_hc": {
+        "name": "Red off-peak rate"
+      },
+      "tarif_rouge_hp": {
+        "name": "Red peak rate"
+      },
+      "jours_bleus_restants": {
+        "name": "Remaining blue days"
+      },
+      "jours_blancs_restants": {
+        "name": "Remaining white days"
+      },
+      "jours_rouges_restants": {
+        "name": "Remaining red days"
+      }
+    },
+    "binary_sensor": {
+      "heures_creuses": {
+        "name": "Off-peak hours"
+      }
+    }
+  }
+}
