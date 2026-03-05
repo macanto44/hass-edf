@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import pytest
 
+from homeassistant.components.sensor import SensorDeviceClass
+
 from custom_components.edf_tempo.const import (
     CONTRACT_BASE,
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
+    DOMAIN,
     PERIOD_HC,
 )
 from custom_components.edf_tempo.sensor import (
@@ -98,3 +101,64 @@ async def test_sensor_available_false():
     coordinator.last_update_success = False
     sensor = EDFTempoSensor(coordinator, BASE_ONLY_SENSORS[0], "edf_base")
     assert sensor.available is False
+
+
+# ---------------------------------------------------------------------------
+# Tests DeviceInfo (AC 1, AC 2)
+# ---------------------------------------------------------------------------
+
+
+async def test_sensor_device_info_tempo():
+    """Contrat Tempo → device_info name='EDF Tempo'."""
+    coordinator = make_mock_coordinator(CONTRACT_TEMPO, data={})
+    sensor = EDFTempoSensor(coordinator, COMMON_SENSORS[0], "edf_tempo")
+    assert sensor.device_info is not None
+    assert sensor.device_info["identifiers"] == {(DOMAIN, "test_entry_123")}
+    assert sensor.device_info["name"] == "EDF Tempo"
+    assert sensor.device_info["manufacturer"] == "EDF"
+
+
+async def test_sensor_device_info_base():
+    """Contrat Base → device_info name='EDF Base'."""
+    coordinator = make_mock_coordinator(CONTRACT_BASE, data={})
+    sensor = EDFTempoSensor(coordinator, COMMON_SENSORS[0], "edf_base")
+    assert sensor.device_info is not None
+    assert sensor.device_info["name"] == "EDF Base"
+
+
+async def test_sensor_device_info_hphc():
+    """Contrat HPHC → device_info name='EDF HP/HC'."""
+    coordinator = make_mock_coordinator(CONTRACT_HPHC, data={})
+    sensor = EDFTempoSensor(coordinator, COMMON_SENSORS[0], "edf_hphc")
+    assert sensor.device_info is not None
+    assert sensor.device_info["name"] == "EDF HP/HC"
+
+
+# ---------------------------------------------------------------------------
+# Tests state_class (AC 4, AC 5)
+# ---------------------------------------------------------------------------
+
+
+async def test_monetary_sensors_have_no_state_class():
+    """Aucun sensor MONETARY ne doit avoir state_class."""
+    all_descriptions = (
+        list(COMMON_SENSORS) + list(BASE_ONLY_SENSORS)
+        + list(HCHP_SHARED_SENSORS) + list(HPHC_ONLY_SENSORS)
+        + list(TEMPO_SENSORS)
+    )
+    for desc in all_descriptions:
+        if desc.device_class == SensorDeviceClass.MONETARY:
+            assert desc.state_class is None, (
+                f"Sensor '{desc.key}' a device_class=MONETARY mais state_class={desc.state_class}"
+            )
+
+
+async def test_jours_restants_keep_state_class_measurement():
+    """Les sensors jours_*_restants gardent state_class=MEASUREMENT."""
+    from homeassistant.components.sensor import SensorStateClass
+    jours_keys = {"jours_bleus_restants", "jours_blancs_restants", "jours_rouges_restants"}
+    for desc in TEMPO_SENSORS:
+        if desc.key in jours_keys:
+            assert desc.state_class == SensorStateClass.MEASUREMENT, (
+                f"Sensor '{desc.key}' devrait garder state_class=MEASUREMENT"
+            )

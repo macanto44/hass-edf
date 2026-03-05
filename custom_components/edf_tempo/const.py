@@ -73,6 +73,12 @@ CONTRACT_TEMPO = "tempo"
 
 AVAILABLE_CONTRACTS = [CONTRACT_BASE, CONTRACT_HPHC, CONTRACT_TEMPO]
 
+DEVICE_NAME_MAP: dict[str, str] = {
+    CONTRACT_BASE: "EDF Base",
+    CONTRACT_HPHC: "EDF HP/HC",
+    CONTRACT_TEMPO: "EDF Tempo",
+}
+
 # ---------------------------------------------------------------------------
 # Config entry keys
 # ---------------------------------------------------------------------------

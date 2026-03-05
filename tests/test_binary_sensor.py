@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from custom_components.edf_tempo.const import (
     CONTRACT_BASE,
+    CONTRACT_HPHC,
     CONTRACT_TEMPO,
+    DOMAIN,
     PERIOD_HC,
     PERIOD_HP,
 )
@@ -59,3 +61,26 @@ async def test_binary_sensor_is_on_hp():
     })
     sensor = EDFTempoBinarySensor(coordinator, HEURES_CREUSES_DESCRIPTION, "edf_tempo")
     assert sensor.is_on is False
+
+
+# ---------------------------------------------------------------------------
+# Tests DeviceInfo
+# ---------------------------------------------------------------------------
+
+
+async def test_binary_sensor_device_info_tempo():
+    """Contrat Tempo → device_info name='EDF Tempo'."""
+    coordinator = make_mock_coordinator(CONTRACT_TEMPO, data={})
+    sensor = EDFTempoBinarySensor(coordinator, HEURES_CREUSES_DESCRIPTION, "edf_tempo")
+    assert sensor.device_info is not None
+    assert sensor.device_info["identifiers"] == {(DOMAIN, "test_entry_123")}
+    assert sensor.device_info["name"] == "EDF Tempo"
+    assert sensor.device_info["manufacturer"] == "EDF"
+
+
+async def test_binary_sensor_device_info_hphc():
+    """Contrat HPHC → device_info name='EDF HP/HC'."""
+    coordinator = make_mock_coordinator(CONTRACT_HPHC, data={})
+    sensor = EDFTempoBinarySensor(coordinator, HEURES_CREUSES_DESCRIPTION, "edf_hphc")
+    assert sensor.device_info is not None
+    assert sensor.device_info["name"] == "EDF HP/HC"

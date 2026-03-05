@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -25,6 +26,7 @@ from .const import (
     CONTRACT_BASE,
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
+    DEVICE_NAME_MAP,
     DOMAIN,
     PERIOD_HC,
     PERIOD_HP,
@@ -60,7 +62,6 @@ COMMON_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="abonnement_mensuel",
         native_unit_of_measurement="€/mo",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
     ),
 )
@@ -73,7 +74,6 @@ BASE_ONLY_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_ttc",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
 )
@@ -86,7 +86,6 @@ HCHP_SHARED_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_actuel",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -106,7 +105,6 @@ HPHC_ONLY_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_hc",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -115,7 +113,6 @@ HPHC_ONLY_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_hp",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
 )
@@ -141,7 +138,6 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_bleu_hc",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -150,7 +146,6 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_bleu_hp",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -159,7 +154,6 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_blanc_hc",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -168,7 +162,6 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_blanc_hp",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -177,7 +170,6 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_rouge_hc",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -186,7 +178,6 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
         translation_key="tarif_rouge_hp",
         native_unit_of_measurement="€/kWh",
         device_class=SensorDeviceClass.MONETARY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
     ),
     EDFTempoSensorEntityDescription(
@@ -230,6 +221,12 @@ class EDFTempoSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{description.key}"
         self.entity_id = f"sensor.{entity_id_prefix}_{description.key}"
         self._coordinator_key = description.coordinator_key
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
+            name=DEVICE_NAME_MAP[coordinator.config_entry.data[CONF_CONTRACT_TYPE]],
+            manufacturer="EDF",
+            entry_type=DeviceEntryType.SERVICE,
+        )
 
     @property
     def native_value(self) -> StateType:

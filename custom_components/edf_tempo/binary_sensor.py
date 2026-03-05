@@ -8,6 +8,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -16,6 +17,7 @@ from .const import (
     CONTRACT_BASE,
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
+    DEVICE_NAME_MAP,
     DOMAIN,
     PERIOD_HC,
 )
@@ -47,6 +49,12 @@ class EDFTempoBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{description.key}"
         self.entity_id = f"binary_sensor.{entity_id_prefix}_{description.key}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
+            name=DEVICE_NAME_MAP[coordinator.config_entry.data[CONF_CONTRACT_TYPE]],
+            manufacturer="EDF",
+            entry_type=DeviceEntryType.SERVICE,
+        )
 
     @property
     def is_on(self) -> bool | None:
