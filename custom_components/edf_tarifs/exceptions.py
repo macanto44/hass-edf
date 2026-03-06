@@ -1,8 +1,8 @@
-"""Custom exceptions for the EDF Tempo integration."""
+"""Custom exceptions for the EDF Tarifs integration."""
 
 
 class EDFTempoError(Exception):
-    """Base exception for all EDF Tempo errors."""
+    """Base exception for all EDF Tarifs errors."""
 
 
 class CannotConnect(EDFTempoError):

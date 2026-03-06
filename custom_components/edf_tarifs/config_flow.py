@@ -1,4 +1,4 @@
-"""Config flow et Options flow pour l'intégration EDF Tempo."""
+"""Config flow et Options flow pour l'intégration EDF Tarifs."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def validate_hc_ranges(value: str) -> str:
 
 
 class EDFTempoConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Config flow pour l'intégration EDF Tempo."""
+    """Config flow pour l'intégration EDF Tarifs."""
 
     VERSION = 1
 
@@ -150,7 +150,7 @@ class EDFTempoConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class EDFTempoOptionsFlow(OptionsFlow):
-    """Options flow pour l'intégration EDF Tempo."""
+    """Options flow pour l'intégration EDF Tarifs."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize options flow."""

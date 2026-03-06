@@ -1,4 +1,4 @@
-"""Sensor entities pour l'intégration EDF Tempo."""
+"""Sensor entities pour l'intégration EDF Tarifs."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ from .const import (
 
 @dataclass(frozen=True, kw_only=True)
 class EDFTempoSensorEntityDescription(SensorEntityDescription):
-    """Description étendue pour les sensors EDF Tempo."""
+    """Description étendue pour les sensors EDF Tarifs."""
 
     coordinator_key: str
 
@@ -205,7 +205,7 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
 
 
 class EDFTempoSensor(CoordinatorEntity, SensorEntity):
-    """Sensor générique pour l'intégration EDF Tempo."""
+    """Sensor générique pour l'intégration EDF Tarifs."""
 
     entity_description: EDFTempoSensorEntityDescription
     _attr_has_entity_name = True

@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator pour l'intégration EDF Tempo."""
+"""DataUpdateCoordinator pour l'intégration EDF Tarifs."""
 
 from __future__ import annotations
 
@@ -88,7 +88,7 @@ def is_hc_period(hc_ranges: str, now: datetime | None = None) -> bool:
 
 
 class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Coordinator qui orchestre toutes les sources de données EDF Tempo."""
+    """Coordinator qui orchestre toutes les sources de données EDF Tarifs."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         scan_key = entry.data.get(CONF_SCAN_INTERVAL, "6h")

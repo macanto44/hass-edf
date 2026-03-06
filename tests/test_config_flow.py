@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from custom_components.edf_tempo.const import (
+from custom_components.edf_tarifs.const import (
     CONF_CONTRACT_TYPE,
     CONF_HC_RANGES,
     CONF_POWER_KVA,
@@ -15,7 +15,7 @@ from custom_components.edf_tempo.const import (
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
 )
-from custom_components.edf_tempo.config_flow import (
+from custom_components.edf_tarifs.config_flow import (
     EDFTempoConfigFlow,
     EDFTempoOptionsFlow,
     validate_hc_ranges,

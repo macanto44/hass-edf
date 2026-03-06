@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from custom_components.edf_tempo.api_couleur_tempo import CouleurTempoClient
-from custom_components.edf_tempo.exceptions import (
+from custom_components.edf_tarifs.api_couleur_tempo import CouleurTempoClient
+from custom_components.edf_tarifs.exceptions import (
     CannotConnect,
     InvalidAuth,
     RateLimitExceeded,

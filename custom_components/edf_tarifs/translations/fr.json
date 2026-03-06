@@ -46,7 +46,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Options EDF Tempo",
+        "title": "Options EDF Tarifs",
         "description": "Modifiez les param\u00e8tres de l\u2019int\u00e9gration. Le type de contrat ne peut pas \u00eatre chang\u00e9 ici.",
         "data": {
           "power_kva": "Puissance (kVA)",

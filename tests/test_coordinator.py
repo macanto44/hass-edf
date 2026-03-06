@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.edf_tempo.const import (
+from custom_components.edf_tarifs.const import (
     COLOR_BLEU,
     COLOR_BLANC,
     COLOR_INCONNU,
@@ -24,12 +24,12 @@ from custom_components.edf_tempo.const import (
     PERIOD_HC,
     PERIOD_HP,
 )
-from custom_components.edf_tempo.coordinator import (
+from custom_components.edf_tarifs.coordinator import (
     EDFTempoCoordinator,
     is_hc_period,
     TIMEZONE_PARIS,
 )
-from custom_components.edf_tempo.exceptions import CannotConnect, InvalidAuth
+from custom_components.edf_tarifs.exceptions import CannotConnect, InvalidAuth
 
 
 # ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ from custom_components.edf_tempo.exceptions import CannotConnect, InvalidAuth
 def _patch_ha_session():
     """Patch async_get_clientsession pour tous les tests du module."""
     with patch(
-        "custom_components.edf_tempo.coordinator.async_get_clientsession",
+        "custom_components.edf_tarifs.coordinator.async_get_clientsession",
         return_value=MagicMock(),
     ):
         yield
@@ -96,7 +96,7 @@ async def test_refresh_tempo_success(mock_hass):
         patch.object(coordinator, "_fetch_tarifs", new_callable=AsyncMock) as mock_tarifs,
         patch.object(coordinator, "_fetch_couleurs", new_callable=AsyncMock) as mock_couleurs,
         patch(
-            "custom_components.edf_tempo.coordinator.is_hc_period", return_value=True
+            "custom_components.edf_tarifs.coordinator.is_hc_period", return_value=True
         ),
     ):
         mock_tarifs.return_value = {
@@ -158,7 +158,7 @@ async def test_refresh_hchp_no_counters(mock_hass):
     with (
         patch.object(coordinator, "_fetch_tarifs", new_callable=AsyncMock) as mock_tarifs,
         patch(
-            "custom_components.edf_tempo.coordinator.is_hc_period", return_value=False
+            "custom_components.edf_tarifs.coordinator.is_hc_period", return_value=False
         ),
     ):
         mock_tarifs.return_value = {
@@ -205,7 +205,7 @@ async def test_fallback_couleur_cache(mock_hass):
             coordinator, "_fetch_couleurs", new_callable=AsyncMock, side_effect=CannotConnect("timeout")
         ),
         patch(
-            "custom_components.edf_tempo.coordinator.is_hc_period", return_value=True
+            "custom_components.edf_tarifs.coordinator.is_hc_period", return_value=True
         ),
     ):
         mock_tarifs.return_value = {
@@ -273,7 +273,7 @@ async def test_tarif_actuel_tempo_bleu_hc(mock_hass):
         patch.object(coordinator, "_fetch_tarifs", new_callable=AsyncMock) as mock_tarifs,
         patch.object(coordinator, "_fetch_couleurs", new_callable=AsyncMock) as mock_couleurs,
         patch(
-            "custom_components.edf_tempo.coordinator.is_hc_period", return_value=True
+            "custom_components.edf_tarifs.coordinator.is_hc_period", return_value=True
         ),
     ):
         mock_tarifs.return_value = {
@@ -343,7 +343,7 @@ async def test_fetch_couleurs_first_call_fetches_all(mock_hass):
     num_days = (fake_today - season_start).days + 1  # 35
 
     with patch(
-        "custom_components.edf_tempo.coordinator.CouleurTempoClient"
+        "custom_components.edf_tarifs.coordinator.CouleurTempoClient"
     ) as MockClient:
         client_instance = AsyncMock()
         client_instance.get_today.return_value = COLOR_BLEU
@@ -371,7 +371,7 @@ async def test_fetch_couleurs_incremental(mock_hass):
         current += timedelta(days=1)
 
     with patch(
-        "custom_components.edf_tempo.coordinator.CouleurTempoClient"
+        "custom_components.edf_tarifs.coordinator.CouleurTempoClient"
     ) as MockClient:
         client_instance = AsyncMock()
         client_instance.get_today.return_value = COLOR_BLEU
@@ -402,7 +402,7 @@ async def test_fetch_couleurs_season_rollover(mock_hass):
     num_days = (fake_today - season_start).days + 1  # 62
 
     with patch(
-        "custom_components.edf_tempo.coordinator.CouleurTempoClient"
+        "custom_components.edf_tarifs.coordinator.CouleurTempoClient"
     ) as MockClient:
         client_instance = AsyncMock()
         client_instance.get_today.return_value = COLOR_BLEU

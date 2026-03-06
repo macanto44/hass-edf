@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 
-COMPONENT_DIR = Path(__file__).resolve().parent.parent / "custom_components" / "edf_tempo"
+COMPONENT_DIR = Path(__file__).resolve().parent.parent / "custom_components" / "edf_tarifs"
 
 
 def _load_json(filename: str) -> dict:
@@ -89,7 +89,7 @@ def test_no_empty_translation_values():
 
 def test_sensor_translation_keys_in_strings():
     """Chaque translation_key de sensor.py doit avoir une entrée dans strings.json."""
-    from custom_components.edf_tempo.sensor import (
+    from custom_components.edf_tarifs.sensor import (
         BASE_ONLY_SENSORS,
         COMMON_SENSORS,
         HCHP_SHARED_SENSORS,
@@ -120,7 +120,7 @@ def test_sensor_translation_keys_in_strings():
 
 def test_binary_sensor_translation_keys_in_strings():
     """Chaque translation_key de binary_sensor.py doit avoir une entrée dans strings.json."""
-    from custom_components.edf_tempo.binary_sensor import HEURES_CREUSES_DESCRIPTION
+    from custom_components.edf_tarifs.binary_sensor import HEURES_CREUSES_DESCRIPTION
 
     strings = _load_json("strings.json")
     bs_translations = strings.get("entity", {}).get("binary_sensor", {})
@@ -138,7 +138,7 @@ def test_binary_sensor_translation_keys_in_strings():
 
 def test_enum_state_translations_match_options():
     """Les sensors ENUM doivent avoir des state translations pour chaque option."""
-    from custom_components.edf_tempo.sensor import (
+    from custom_components.edf_tarifs.sensor import (
         HCHP_SHARED_SENSORS,
         TEMPO_SENSORS,
     )
@@ -169,7 +169,7 @@ def test_enum_state_translations_match_options():
 
 def test_config_flow_data_keys():
     """Les clés data dans strings.json correspondent aux CONF_* de const.py."""
-    from custom_components.edf_tempo.const import (
+    from custom_components.edf_tarifs.const import (
         CONF_CONTRACT_TYPE,
         CONF_HC_RANGES,
         CONF_POWER_KVA,

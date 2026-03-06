@@ -6,14 +6,14 @@ import pytest
 
 from homeassistant.components.sensor import SensorDeviceClass
 
-from custom_components.edf_tempo.const import (
+from custom_components.edf_tarifs.const import (
     CONTRACT_BASE,
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
     DOMAIN,
     PERIOD_HC,
 )
-from custom_components.edf_tempo.sensor import (
+from custom_components.edf_tarifs.sensor import (
     BASE_ONLY_SENSORS,
     COMMON_SENSORS,
     HCHP_SHARED_SENSORS,

@@ -7,12 +7,12 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from custom_components.edf_tempo.api_datagouv import DataGouvClient
-from custom_components.edf_tempo.const import (
+from custom_components.edf_tarifs.api_datagouv import DataGouvClient
+from custom_components.edf_tarifs.const import (
     CSV_REQUIRED_COLS_HCHP,
     CSV_REQUIRED_COLS_TEMPO,
 )
-from custom_components.edf_tempo.exceptions import CannotConnect, ParseError
+from custom_components.edf_tarifs.exceptions import CannotConnect, ParseError
 
 _CSV_TEMPO_HEADER = (
     "P_SOUSCRITE;PART_FIXE_TTC;"

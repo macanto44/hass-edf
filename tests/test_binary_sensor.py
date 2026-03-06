@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from custom_components.edf_tempo.const import (
+from custom_components.edf_tarifs.const import (
     CONTRACT_BASE,
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
@@ -10,7 +10,7 @@ from custom_components.edf_tempo.const import (
     PERIOD_HC,
     PERIOD_HP,
 )
-from custom_components.edf_tempo.binary_sensor import (
+from custom_components.edf_tarifs.binary_sensor import (
     HEURES_CREUSES_DESCRIPTION,
     EDFTempoBinarySensor,
     async_setup_entry,

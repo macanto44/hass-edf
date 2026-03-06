@@ -46,7 +46,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "EDF Tempo options",
+        "title": "EDF Tarifs options",
         "description": "Modify your integration settings. Contract type cannot be changed here.",
         "data": {
           "power_kva": "Power (kVA)",

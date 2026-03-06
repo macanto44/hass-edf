@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from custom_components.edf_tempo.const import (
+from custom_components.edf_tarifs.const import (
     CONF_CONTRACT_TYPE,
     CONF_HC_RANGES,
     CONF_POWER_KVA,

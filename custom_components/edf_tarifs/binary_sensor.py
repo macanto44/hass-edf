@@ -1,4 +1,4 @@
-"""Binary sensor entities pour l'intégration EDF Tempo."""
+"""Binary sensor entities pour l'intégration EDF Tarifs."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ HEURES_CREUSES_DESCRIPTION = BinarySensorEntityDescription(
 
 
 class EDFTempoBinarySensor(CoordinatorEntity, BinarySensorEntity):
-    """Binary sensor Heures Creuses pour EDF Tempo."""
+    """Binary sensor Heures Creuses pour EDF Tarifs."""
 
     _attr_has_entity_name = True
 

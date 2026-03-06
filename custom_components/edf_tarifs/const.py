@@ -1,8 +1,8 @@
-"""Constants for the EDF Tempo integration."""
+"""Constants for the EDF Tarifs integration."""
 
 from datetime import timedelta
 
-DOMAIN = "edf_tempo"
+DOMAIN = "edf_tarifs"
 
 # ---------------------------------------------------------------------------
 # Update intervals
