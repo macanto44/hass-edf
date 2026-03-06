@@ -56,7 +56,6 @@ class CouleurTempoClient:
 
     def _code_to_color(self, data: dict) -> str:
         """Convertit codeJour en nom de couleur. Retourne COLOR_INCONNU si inconnu."""
-        _LOGGER.debug("API couleur raw response: %s", data)
         code = data.get("codeJour")
         if code is None:
             return COLOR_INCONNU

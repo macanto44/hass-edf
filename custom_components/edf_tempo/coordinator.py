@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, time
+from datetime import date, datetime, time, timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api_couleur_tempo import CouleurTempoClient
+from .api_couleur_tempo import CouleurTempoClient, get_season_start
 from .api_datagouv import DataGouvClient
 from .const import (
     AVAILABLE_SCAN_INTERVALS,
@@ -103,6 +103,7 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._contract_type: str = entry.data[CONF_CONTRACT_TYPE]
         self._power_kva: int = entry.data[CONF_POWER_KVA]
         self._hc_ranges: str = entry.data.get(CONF_HC_RANGES, DEFAULT_HC_RANGES_TEMPO)
+        self._season_cache: dict[date, str] = {}
 
     def _map_tarifs(self, raw: dict[str, float], key_map: dict[str, str]) -> dict[str, Any]:
         """Convertit les clés CSV en clés coordinator.data et calcule abonnement_mensuel."""
@@ -205,12 +206,46 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         raw = await client.get_tarifs_tempo(self._power_kva)
         return self._map_tarifs(raw, _TARIF_KEY_MAP_TEMPO)
 
-    async def _fetch_couleurs(self, session: Any) -> dict[str, Any]:
-        """Charge les couleurs Tempo et les compteurs saison."""
+    async def _fetch_couleurs(
+        self, session: Any, _today: date | None = None
+    ) -> dict[str, Any]:
+        """Charge les couleurs Tempo et les compteurs saison (cache incrémental)."""
         client = CouleurTempoClient(session)
         today_color = await client.get_today()
         tomorrow_color = await client.get_tomorrow()
-        history = await client.get_season_history()
+
+        today = _today or date.today()
+        season_start = get_season_start(today)
+
+        # Purger les entrées hors saison courante
+        self._season_cache = {
+            d: c for d, c in self._season_cache.items() if d >= season_start
+        }
+
+        # Toujours re-fetcher aujourd'hui (la couleur peut changer)
+        self._season_cache.pop(today, None)
+
+        # Identifier les jours manquants
+        days_to_fetch: list[date] = []
+        current = season_start
+        while current <= today:
+            if current not in self._season_cache:
+                days_to_fetch.append(current)
+            current += timedelta(days=1)
+
+        # Ne fetcher que les jours manquants
+        if days_to_fetch:
+            _LOGGER.debug(
+                "Season cache: fetching %d day(s) out of %d total",
+                len(days_to_fetch),
+                (today - season_start).days + 1,
+            )
+            for day in days_to_fetch:
+                color = await client.get_day(day)
+                self._season_cache[day] = color
+
+        # Construire l'historique depuis le cache pour _compute_counters
+        history: list[tuple[date, str]] = sorted(self._season_cache.items())
 
         result: dict[str, Any] = {
             "couleur_aujourd_hui": today_color,

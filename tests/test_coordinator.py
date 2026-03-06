@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, date
+from datetime import date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -326,3 +326,92 @@ def test_compteurs_saison(mock_hass):
     assert counters["jours_blancs_restants"] == MAX_JOURS_BLANC - 1
     assert counters["jours_rouges_consommes"] == 1
     assert counters["jours_rouges_restants"] == MAX_JOURS_ROUGE - 1
+
+
+# ---------------------------------------------------------------------------
+# Tests cache incrémental _fetch_couleurs
+# ---------------------------------------------------------------------------
+
+
+async def test_fetch_couleurs_first_call_fetches_all(mock_hass):
+    """Premier appel avec cache vide → tous les jours de la saison fetchés."""
+    coordinator = _make_coordinator(mock_hass, CONTRACT_TEMPO)
+    assert coordinator._season_cache == {}
+
+    fake_today = date(2025, 10, 5)
+    season_start = date(2025, 9, 1)
+    num_days = (fake_today - season_start).days + 1  # 35
+
+    with patch(
+        "custom_components.edf_tempo.coordinator.CouleurTempoClient"
+    ) as MockClient:
+        client_instance = AsyncMock()
+        client_instance.get_today.return_value = COLOR_BLEU
+        client_instance.get_tomorrow.return_value = COLOR_BLANC
+        client_instance.get_day.return_value = COLOR_BLEU
+        MockClient.return_value = client_instance
+
+        await coordinator._fetch_couleurs(MagicMock(), _today=fake_today)
+
+    assert client_instance.get_day.call_count == num_days
+    assert len(coordinator._season_cache) == num_days
+
+
+async def test_fetch_couleurs_incremental(mock_hass):
+    """Cache chaud → seul today est re-fetché (1 appel get_day)."""
+    coordinator = _make_coordinator(mock_hass, CONTRACT_TEMPO)
+
+    fake_today = date(2025, 10, 5)
+    season_start = date(2025, 9, 1)
+
+    # Pré-remplir le cache avec tous les jours y compris today
+    current = season_start
+    while current <= fake_today:
+        coordinator._season_cache[current] = COLOR_BLEU
+        current += timedelta(days=1)
+
+    with patch(
+        "custom_components.edf_tempo.coordinator.CouleurTempoClient"
+    ) as MockClient:
+        client_instance = AsyncMock()
+        client_instance.get_today.return_value = COLOR_BLEU
+        client_instance.get_tomorrow.return_value = COLOR_BLANC
+        client_instance.get_day.return_value = COLOR_BLEU
+        MockClient.return_value = client_instance
+
+        await coordinator._fetch_couleurs(MagicMock(), _today=fake_today)
+
+    # Seul today a été re-fetché (évicté puis refetché)
+    assert client_instance.get_day.call_count == 1
+
+
+async def test_fetch_couleurs_season_rollover(mock_hass):
+    """Cache ancienne saison → purgé, tous les jours de la nouvelle saison fetchés."""
+    coordinator = _make_coordinator(mock_hass, CONTRACT_TEMPO)
+
+    # Entrées de l'ancienne saison
+    coordinator._season_cache = {
+        date(2024, 9, 1): COLOR_BLEU,
+        date(2024, 12, 25): COLOR_ROUGE,
+        date(2025, 3, 15): COLOR_BLANC,
+    }
+
+    # Nouvelle saison : novembre 2025 → saison commence le 1er sept 2025
+    fake_today = date(2025, 11, 1)
+    season_start = date(2025, 9, 1)
+    num_days = (fake_today - season_start).days + 1  # 62
+
+    with patch(
+        "custom_components.edf_tempo.coordinator.CouleurTempoClient"
+    ) as MockClient:
+        client_instance = AsyncMock()
+        client_instance.get_today.return_value = COLOR_BLEU
+        client_instance.get_tomorrow.return_value = COLOR_BLEU
+        client_instance.get_day.return_value = COLOR_BLEU
+        MockClient.return_value = client_instance
+
+        await coordinator._fetch_couleurs(MagicMock(), _today=fake_today)
+
+    # Anciennes entrées purgées, tous les nouveaux jours fetchés
+    assert all(d >= season_start for d in coordinator._season_cache)
+    assert client_instance.get_day.call_count == num_days

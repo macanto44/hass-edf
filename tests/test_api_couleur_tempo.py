@@ -17,40 +17,40 @@ from custom_components.edf_tempo.exceptions import (
 
 
 async def test_get_today_bleu(mock_aiohttp_session):
-    """codeCouleur=1 → 'Bleu'."""
+    """codeJour=1 → 'Bleu'."""
     mock_aiohttp_session.get.return_value.status = 200
     mock_aiohttp_session.get.return_value.json = AsyncMock(
-        return_value={"codeCouleur": 1}
+        return_value={"codeJour": 1}
     )
     client = CouleurTempoClient(mock_aiohttp_session)
     assert await client.get_today() == "Bleu"
 
 
 async def test_get_today_blanc(mock_aiohttp_session):
-    """codeCouleur=2 → 'Blanc'."""
+    """codeJour=2 → 'Blanc'."""
     mock_aiohttp_session.get.return_value.status = 200
     mock_aiohttp_session.get.return_value.json = AsyncMock(
-        return_value={"codeCouleur": 2}
+        return_value={"codeJour": 2}
     )
     client = CouleurTempoClient(mock_aiohttp_session)
     assert await client.get_today() == "Blanc"
 
 
 async def test_get_today_rouge(mock_aiohttp_session):
-    """codeCouleur=3 → 'Rouge'."""
+    """codeJour=3 → 'Rouge'."""
     mock_aiohttp_session.get.return_value.status = 200
     mock_aiohttp_session.get.return_value.json = AsyncMock(
-        return_value={"codeCouleur": 3}
+        return_value={"codeJour": 3}
     )
     client = CouleurTempoClient(mock_aiohttp_session)
     assert await client.get_today() == "Rouge"
 
 
 async def test_get_today_inconnu(mock_aiohttp_session):
-    """codeCouleur inconnu → 'Inconnu' sans lever d'exception."""
+    """codeJour inconnu → 'Inconnu' sans lever d'exception."""
     mock_aiohttp_session.get.return_value.status = 200
     mock_aiohttp_session.get.return_value.json = AsyncMock(
-        return_value={"codeCouleur": 99}
+        return_value={"codeJour": 99}
     )
     client = CouleurTempoClient(mock_aiohttp_session)
     assert await client.get_today() == "Inconnu"
@@ -81,7 +81,7 @@ async def test_get_today_invalid_auth(mock_aiohttp_session):
 
 
 async def test_get_tomorrow_inconnu_si_vide(mock_aiohttp_session):
-    """Réponse sans codeCouleur → 'Inconnu' (couleur non encore publiée)."""
+    """Réponse sans codeJour → 'Inconnu' (couleur non encore publiée)."""
     mock_aiohttp_session.get.return_value.status = 200
     mock_aiohttp_session.get.return_value.json = AsyncMock(return_value={})
     client = CouleurTempoClient(mock_aiohttp_session)
@@ -108,9 +108,9 @@ async def test_get_season_history(mock_aiohttp_session):
     mock_aiohttp_session.get.return_value.status = 200
     mock_aiohttp_session.get.return_value.json = AsyncMock(
         side_effect=[
-            {"codeCouleur": 1},
-            {"codeCouleur": 2},
-            {"codeCouleur": 3},
+            {"codeJour": 1},
+            {"codeJour": 2},
+            {"codeJour": 3},
         ]
     )
     client = CouleurTempoClient(mock_aiohttp_session)
