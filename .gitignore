@@ -37,6 +37,7 @@ _bmad-output/
 Thumbs.db
 
 # Tests
+tests/
 .pytest_cache/
 .coverage
 htmlcov/
