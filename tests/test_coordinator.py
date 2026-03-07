@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import date, datetime, time, timedelta
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 
@@ -415,3 +415,69 @@ async def test_fetch_couleurs_season_rollover(mock_hass):
     # Anciennes entrées purgées, tous les nouveaux jours fetchés
     assert all(d >= season_start for d in coordinator._season_cache)
     assert client_instance.get_day.call_count == num_days
+
+
+# ---------------------------------------------------------------------------
+# Tests HC boundary listeners
+# ---------------------------------------------------------------------------
+
+
+def test_parse_hc_boundaries_simple():
+    """'22:00-06:00' → deux frontières."""
+    boundaries = EDFTempoCoordinator._parse_hc_boundaries("22:00-06:00")
+    assert boundaries == [time(22, 0), time(6, 0)]
+
+
+def test_parse_hc_boundaries_multiple_ranges():
+    """'23:30-07:30,12:00-14:00' → quatre frontières."""
+    boundaries = EDFTempoCoordinator._parse_hc_boundaries("23:30-07:30,12:00-14:00")
+    assert boundaries == [time(23, 30), time(7, 30), time(12, 0), time(14, 0)]
+
+
+def test_parse_hc_boundaries_invalid_ignored():
+    """Format invalide ignoré sans erreur."""
+    boundaries = EDFTempoCoordinator._parse_hc_boundaries("invalid,22:00-06:00")
+    assert boundaries == [time(22, 0), time(6, 0)]
+
+
+def test_setup_hc_listeners_registers_trackers(mock_hass):
+    """setup_hc_listeners enregistre async_track_time_change pour chaque frontière."""
+    coordinator = _make_coordinator(mock_hass, CONTRACT_TEMPO, hc_ranges="22:00-06:00")
+    mock_unsub = MagicMock()
+
+    with patch(
+        "custom_components.edf_tarifs.coordinator.async_track_time_change",
+        return_value=mock_unsub,
+    ) as mock_track:
+        coordinator.setup_hc_listeners()
+
+    assert mock_track.call_count == 2
+    # Vérifie les heures enregistrées
+    calls = mock_track.call_args_list
+    assert calls[0] == call(mock_hass, coordinator._handle_hc_boundary, hour=22, minute=0, second=0)
+    assert calls[1] == call(mock_hass, coordinator._handle_hc_boundary, hour=6, minute=0, second=0)
+    assert len(coordinator._unsub_hc_listeners) == 2
+
+
+def test_shutdown_hc_listeners(mock_hass):
+    """shutdown_hc_listeners appelle tous les unsub."""
+    coordinator = _make_coordinator(mock_hass, CONTRACT_TEMPO)
+    unsub1 = MagicMock()
+    unsub2 = MagicMock()
+    coordinator._unsub_hc_listeners = [unsub1, unsub2]
+
+    coordinator.shutdown_hc_listeners()
+
+    unsub1.assert_called_once()
+    unsub2.assert_called_once()
+    assert coordinator._unsub_hc_listeners == []
+
+
+async def test_handle_hc_boundary_requests_refresh(mock_hass):
+    """_handle_hc_boundary appelle async_request_refresh."""
+    coordinator = _make_coordinator(mock_hass, CONTRACT_TEMPO)
+
+    with patch.object(coordinator, "async_request_refresh", new_callable=AsyncMock) as mock_refresh:
+        await coordinator._handle_hc_boundary(datetime.now())
+
+    mock_refresh.assert_called_once()

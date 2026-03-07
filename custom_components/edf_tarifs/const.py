@@ -8,7 +8,6 @@ DOMAIN = "edf_tarifs"
 # Update intervals
 # ---------------------------------------------------------------------------
 
-SCAN_INTERVAL_15MIN = timedelta(minutes=15)
 SCAN_INTERVAL_1H = timedelta(hours=1)
 SCAN_INTERVAL_6H = timedelta(hours=6)
 SCAN_INTERVAL_1D = timedelta(days=1)
@@ -16,7 +15,6 @@ SCAN_INTERVAL_1D = timedelta(days=1)
 DEFAULT_SCAN_INTERVAL = SCAN_INTERVAL_6H
 
 AVAILABLE_SCAN_INTERVALS: dict[str, timedelta] = {
-    "15min": SCAN_INTERVAL_15MIN,
     "1h": SCAN_INTERVAL_1H,
     "6h": SCAN_INTERVAL_6H,
     "1d": SCAN_INTERVAL_1D,

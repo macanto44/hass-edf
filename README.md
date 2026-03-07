@@ -21,6 +21,7 @@ Integration Home Assistant (HACS) pour suivre les **tarifs EDF** et les **couleu
 - **Compteurs saison** : jours consommes et restants par couleur
 - **Periode actuelle** : Heures Creuses / Heures Pleines
 - **Binary sensor** heures creuses (on/off) pour les automatisations
+- **Transitions HC/HP exactes** : les entites basculent a la seconde pres, independamment de la frequence de polling
 - **Config Flow** guide (pas de YAML)
 - **Traductions** francais et anglais
 - **Cache intelligent** : l'historique saison est mis en cache pour eviter les appels API redondants
@@ -54,7 +55,7 @@ Integration Home Assistant (HACS) pour suivre les **tarifs EDF** et les **couleu
    - **Etape 1** : Type de contrat (Base / HP/HC / Tempo)
    - **Etape 2** : Puissance souscrite (3 / 6 / 9 / 12 / 15 kVA)
    - **Etape 3** : Plages heures creuses *(HP/HC et Tempo uniquement)* — defaut : `22:00-06:00`
-   - **Etape 4** : Frequence de mise a jour (15min / 1h / 6h / 1j) — defaut : 6h
+   - **Etape 4** : Frequence de mise a jour (1h / 6h / 1j) — defaut : 6h
 
 ### Modifier les parametres
 
@@ -169,6 +170,10 @@ custom_components/edf_tarifs/
 ### Cache intelligent
 
 L'historique des couleurs de la saison est mis en cache en memoire. Au premier demarrage, toutes les couleurs sont recuperees (~186 appels). Aux rafraichissements suivants, seul le jour courant est re-verifie (1 appel). Le cache est purge automatiquement lors du changement de saison (1er septembre).
+
+### Transitions HC/HP en temps reel
+
+Les entites `periode_actuelle`, `tarif_actuel` et `heures_creuses` basculent a l'heure exacte de transition HC/HP (ex: 22:00 et 06:00), independamment de l'intervalle de polling configure. Ceci est realise via des listeners `async_track_time_change` enregistres sur chaque frontiere des plages heures creuses.
 
 ## Developpement
 

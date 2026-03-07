@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import date, datetime, time, timedelta
+from collections.abc import Callable
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -104,6 +105,51 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._power_kva: int = entry.data[CONF_POWER_KVA]
         self._hc_ranges: str = entry.data.get(CONF_HC_RANGES, DEFAULT_HC_RANGES_TEMPO)
         self._season_cache: dict[date, str] = {}
+        self._unsub_hc_listeners: list[Callable] = []
+
+    @staticmethod
+    def _parse_hc_boundaries(hc_ranges: str) -> list[time]:
+        """Extrait les heures de début et fin de chaque plage HC."""
+        boundaries: list[time] = []
+        for range_str in hc_ranges.split(","):
+            try:
+                start_str, end_str = range_str.strip().split("-")
+                boundaries.append(time.fromisoformat(start_str.strip()))
+                boundaries.append(time.fromisoformat(end_str.strip()))
+            except (ValueError, TypeError):
+                _LOGGER.warning("Format HC invalide ignoré : %r", range_str.strip())
+        return boundaries
+
+    def setup_hc_listeners(self) -> None:
+        """Planifie un refresh du coordinator aux transitions HC/HP."""
+        from homeassistant.helpers.event import async_track_time_change
+
+        boundaries = self._parse_hc_boundaries(self._hc_ranges)
+        for boundary in boundaries:
+            unsub = async_track_time_change(
+                self.hass,
+                self._handle_hc_boundary,
+                hour=boundary.hour,
+                minute=boundary.minute,
+                second=0,
+            )
+            self._unsub_hc_listeners.append(unsub)
+        if boundaries:
+            _LOGGER.debug(
+                "HC boundary listeners registered at: %s",
+                [b.strftime("%H:%M") for b in boundaries],
+            )
+
+    async def _handle_hc_boundary(self, _now: datetime) -> None:
+        """Callback déclenché aux transitions HC/HP."""
+        _LOGGER.debug("HC/HP boundary reached, requesting coordinator refresh")
+        await self.async_request_refresh()
+
+    def shutdown_hc_listeners(self) -> None:
+        """Désinscrit les listeners de transition HC."""
+        for unsub in self._unsub_hc_listeners:
+            unsub()
+        self._unsub_hc_listeners.clear()
 
     def _map_tarifs(self, raw: dict[str, float], key_map: dict[str, str]) -> dict[str, Any]:
         """Convertit les clés CSV en clés coordinator.data et calcule abonnement_mensuel."""

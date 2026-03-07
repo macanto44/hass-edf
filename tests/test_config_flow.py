@@ -124,7 +124,7 @@ async def test_config_flow_hphc_complete():
     assert result["type"] == "form"
     assert result["step_id"] == "scan_interval"
 
-    result = await flow.async_step_scan_interval({CONF_SCAN_INTERVAL: "15min"})
+    result = await flow.async_step_scan_interval({CONF_SCAN_INTERVAL: "1h"})
     assert result["type"] == "create_entry"
     assert result["data"][CONF_HC_RANGES] == "01:30-07:30, 12:30-14:30"
 
