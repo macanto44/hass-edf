@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from urllib.parse import quote
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -273,7 +274,7 @@ class EDFTempoVisualSensor(EDFTempoSensor):
             f"<circle cx='12' cy='12' r='10' fill='{hex_val}'/>"
             "</svg>"
         )
-        return f"data:image/svg+xml,{svg}"
+        return f"data:image/svg+xml;utf8,{quote(svg)}"
 
 
 async def async_setup_entry(
