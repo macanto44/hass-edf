@@ -101,8 +101,8 @@ Vous pouvez modifier après installation : la puissance, les plages HC et la fr�
 | `sensor.edf_tempo_jours_bleus_restants` | Jours Bleu restants sur la saison | Compteur |
 | `sensor.edf_tempo_jours_blancs_restants` | Jours Blanc restants sur la saison | Compteur |
 | `sensor.edf_tempo_jours_rouges_restants` | Jours Rouge restants sur la saison | Compteur |
-| `sensor.edf_tempo_couleur_aujourd_hui_visuel` | Couleur du jour (pictogramme coloré) | Visuel |
-| `sensor.edf_tempo_couleur_demain_visuel` | Couleur de demain (pictogramme coloré) | Visuel |
+| `sensor.edf_tempo_couleur_aujourd_hui_visuel` | Couleur du jour en emoji (🔵/⚪/🔴/❓) | Visuel |
+| `sensor.edf_tempo_couleur_demain_visuel` | Couleur de demain en emoji (🔵/⚪/🔴/❓) | Visuel |
 | `binary_sensor.edf_tempo_heures_creuses` | Heures creuses actives | Booléen |
 
 ## Exemples d'automatisations

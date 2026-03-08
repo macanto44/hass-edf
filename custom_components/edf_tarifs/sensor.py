@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from urllib.parse import quote
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -21,7 +20,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     COLOR_BLANC,
     COLOR_BLEU,
-    COLOR_HEX_MAP,
+    COLOR_EMOJI_MAP,
     COLOR_INCONNU,
     COLOR_ROUGE,
     CONF_CONTRACT_TYPE,
@@ -260,21 +259,15 @@ class EDFTempoSensor(CoordinatorEntity, SensorEntity):
 
 
 class EDFTempoVisualSensor(EDFTempoSensor):
-    """Sensor visuel avec cercle SVG coloré pour les couleurs Tempo."""
+    """Sensor visuel avec emoji coloré pour les couleurs Tempo."""
 
     @property
-    def entity_picture(self) -> str | None:
-        """Retourne un cercle SVG coloré selon la couleur Tempo."""
-        color = self.native_value
+    def native_value(self) -> StateType:
+        """Retourne un emoji coloré selon la couleur Tempo."""
+        color = super().native_value
         if color is None:
             return None
-        hex_val = COLOR_HEX_MAP.get(color, "#9E9E9E")
-        svg = (
-            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>"
-            f"<circle cx='12' cy='12' r='10' fill='{hex_val}'/>"
-            "</svg>"
-        )
-        return f"data:image/svg+xml;utf8,{quote(svg)}"
+        return COLOR_EMOJI_MAP.get(color, "❓")
 
 
 async def async_setup_entry(

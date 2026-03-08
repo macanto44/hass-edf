@@ -104,12 +104,12 @@ COLOR_MAP: dict[str, str] = {
     "3": COLOR_ROUGE,
 }
 
-# Color name → hex code for visual SVG sensors
-COLOR_HEX_MAP: dict[str, str] = {
-    COLOR_BLEU: "#2196F3",
-    COLOR_BLANC: "#BDBDBD",
-    COLOR_ROUGE: "#F44336",
-    COLOR_INCONNU: "#9E9E9E",
+# Color name → emoji for visual sensors
+COLOR_EMOJI_MAP: dict[str, str] = {
+    COLOR_BLEU: "🔵",
+    COLOR_BLANC: "⚪",
+    COLOR_ROUGE: "🔴",
+    COLOR_INCONNU: "❓",
 }
 
 # ---------------------------------------------------------------------------
