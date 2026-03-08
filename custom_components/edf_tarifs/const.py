@@ -104,6 +104,14 @@ COLOR_MAP: dict[str, str] = {
     "3": COLOR_ROUGE,
 }
 
+# Color name → hex code for visual SVG sensors
+COLOR_HEX_MAP: dict[str, str] = {
+    COLOR_BLEU: "#2196F3",
+    COLOR_BLANC: "#BDBDBD",
+    COLOR_ROUGE: "#F44336",
+    COLOR_INCONNU: "#9E9E9E",
+}
+
 # ---------------------------------------------------------------------------
 # Tempo season day counters (max per season)
 # ---------------------------------------------------------------------------

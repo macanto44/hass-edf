@@ -1,7 +1,7 @@
 {
   "domain": "edf_tarifs",
   "name": "EDF Tarifs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "config_flow": true,
   "documentation": "https://github.com/macanto44/hass-edf",
   "issue_tracker": "https://github.com/macanto44/hass-edf/issues",

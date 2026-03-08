@@ -130,6 +130,12 @@
       },
       "jours_rouges_restants": {
         "name": "Jours rouges restants"
+      },
+      "couleur_aujourd_hui_visuel": {
+        "name": "Couleur aujourd\u2019hui (visuel)"
+      },
+      "couleur_demain_visuel": {
+        "name": "Couleur demain (visuel)"
       }
     },
     "binary_sensor": {

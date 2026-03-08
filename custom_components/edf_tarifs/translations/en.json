@@ -130,6 +130,12 @@
       },
       "jours_rouges_restants": {
         "name": "Remaining red days"
+      },
+      "couleur_aujourd_hui_visuel": {
+        "name": "Today's color (visual)"
+      },
+      "couleur_demain_visuel": {
+        "name": "Tomorrow's color (visual)"
       }
     },
     "binary_sensor": {

@@ -20,6 +20,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     COLOR_BLANC,
     COLOR_BLEU,
+    COLOR_HEX_MAP,
     COLOR_INCONNU,
     COLOR_ROUGE,
     CONF_CONTRACT_TYPE,
@@ -203,6 +204,22 @@ TEMPO_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
     ),
 )
 
+# Sensors visuels Tempo (cercle SVG coloré)
+TEMPO_VISUAL_SENSORS: tuple[EDFTempoSensorEntityDescription, ...] = (
+    EDFTempoSensorEntityDescription(
+        key="couleur_aujourd_hui_visuel",
+        coordinator_key="couleur_aujourd_hui",
+        translation_key="couleur_aujourd_hui_visuel",
+    ),
+    EDFTempoSensorEntityDescription(
+        key="couleur_demain_visuel",
+        coordinator_key="couleur_demain",
+        translation_key="couleur_demain_visuel",
+    ),
+)
+
+_VISUAL_SENSOR_KEYS = {desc.key for desc in TEMPO_VISUAL_SENSORS}
+
 
 class EDFTempoSensor(CoordinatorEntity, SensorEntity):
     """Sensor générique pour l'intégration EDF Tarifs."""
@@ -241,6 +258,24 @@ class EDFTempoSensor(CoordinatorEntity, SensorEntity):
         return self.coordinator.last_update_success
 
 
+class EDFTempoVisualSensor(EDFTempoSensor):
+    """Sensor visuel avec cercle SVG coloré pour les couleurs Tempo."""
+
+    @property
+    def entity_picture(self) -> str | None:
+        """Retourne un cercle SVG coloré selon la couleur Tempo."""
+        color = self.native_value
+        if color is None:
+            return None
+        hex_val = COLOR_HEX_MAP.get(color, "#9E9E9E")
+        svg = (
+            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>"
+            f"<circle cx='12' cy='12' r='10' fill='{hex_val}'/>"
+            "</svg>"
+        )
+        return f"data:image/svg+xml,{svg}"
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -260,7 +295,11 @@ async def async_setup_entry(
         descriptions += list(HPHC_ONLY_SENSORS)
     if contract == CONTRACT_TEMPO:
         descriptions += list(TEMPO_SENSORS)
+        descriptions += list(TEMPO_VISUAL_SENSORS)
 
     async_add_entities(
-        EDFTempoSensor(coordinator, desc, prefix) for desc in descriptions
+        EDFTempoVisualSensor(coordinator, desc, prefix)
+        if desc.key in _VISUAL_SENSOR_KEYS
+        else EDFTempoSensor(coordinator, desc, prefix)
+        for desc in descriptions
     )
