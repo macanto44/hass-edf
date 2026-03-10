@@ -27,13 +27,6 @@
         "data_description": {
           "hc_ranges": "Exemple : 22:00-06:00 ou 01:30-07:30, 12:30-14:30"
         }
-      },
-      "scan_interval": {
-        "title": "Fr\u00e9quence de mise \u00e0 jour",
-        "description": "S\u00e9lectionnez la fr\u00e9quence de rafra\u00eechissement des donn\u00e9es.",
-        "data": {
-          "scan_interval": "Intervalle de mise \u00e0 jour"
-        }
       }
     },
     "error": {
@@ -50,7 +43,6 @@
         "description": "Modifiez les param\u00e8tres de l\u2019int\u00e9gration. Le type de contrat ne peut pas \u00eatre chang\u00e9 ici.",
         "data": {
           "power_kva": "Puissance (kVA)",
-          "scan_interval": "Intervalle de mise \u00e0 jour",
           "hc_ranges": "Plages HC"
         }
       }

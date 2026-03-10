@@ -27,13 +27,6 @@
         "data_description": {
           "hc_ranges": "Example: 22:00-06:00 or 01:30-07:30, 12:30-14:30"
         }
-      },
-      "scan_interval": {
-        "title": "Update frequency",
-        "description": "Select how often data should be refreshed.",
-        "data": {
-          "scan_interval": "Update interval"
-        }
       }
     },
     "error": {
@@ -50,7 +43,6 @@
         "description": "Modify your integration settings. Contract type cannot be changed here.",
         "data": {
           "power_kva": "Power (kVA)",
-          "scan_interval": "Update interval",
           "hc_ranges": "Off-peak ranges"
         }
       }

@@ -15,11 +15,9 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     AVAILABLE_CONTRACTS,
     AVAILABLE_POWERS,
-    AVAILABLE_SCAN_INTERVALS,
     CONF_CONTRACT_TYPE,
     CONF_HC_RANGES,
     CONF_POWER_KVA,
-    CONF_SCAN_INTERVAL,
     CONTRACT_BASE,
     DEFAULT_HC_RANGES_TEMPO,
     DOMAIN,
@@ -86,7 +84,7 @@ class EDFTempoConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._data.update(user_input)
             if self._data[CONF_CONTRACT_TYPE] == CONTRACT_BASE:
-                return await self.async_step_scan_interval()
+                return self._create_entry()
             return await self.async_step_hc_ranges()
 
         return self.async_show_form(
@@ -110,7 +108,7 @@ class EDFTempoConfigFlow(ConfigFlow, domain=DOMAIN):
                     user_input[CONF_HC_RANGES]
                 )
                 self._data.update(user_input)
-                return await self.async_step_scan_interval()
+                return self._create_entry()
             except vol.Invalid:
                 errors["base"] = "invalid_hc_format"
 
@@ -126,27 +124,12 @@ class EDFTempoConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_scan_interval(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Étape 4 : fréquence de mise à jour."""
-        if user_input is not None:
-            self._data.update(user_input)
-            contract = self._data[CONF_CONTRACT_TYPE]
-            power = self._data[CONF_POWER_KVA]
-            title = f"EDF {contract.upper()} {power} kVA"
-            return self.async_create_entry(title=title, data=self._data)
-
-        return self.async_show_form(
-            step_id="scan_interval",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_SCAN_INTERVAL, default="6h"): vol.In(
-                        list(AVAILABLE_SCAN_INTERVALS.keys())
-                    ),
-                }
-            ),
-        )
+    def _create_entry(self) -> FlowResult:
+        """Crée l'entrée de configuration."""
+        contract = self._data[CONF_CONTRACT_TYPE]
+        power = self._data[CONF_POWER_KVA]
+        title = f"EDF {contract.upper()} {power} kVA"
+        return self.async_create_entry(title=title, data=self._data)
 
 
 class EDFTempoOptionsFlow(OptionsFlow):
@@ -189,10 +172,6 @@ class EDFTempoOptionsFlow(OptionsFlow):
                 CONF_POWER_KVA,
                 default=current.get(CONF_POWER_KVA, 6),
             ): vol.In(AVAILABLE_POWERS),
-            vol.Required(
-                CONF_SCAN_INTERVAL,
-                default=current.get(CONF_SCAN_INTERVAL, "6h"),
-            ): vol.In(list(AVAILABLE_SCAN_INTERVALS.keys())),
         }
 
         if contract != CONTRACT_BASE:

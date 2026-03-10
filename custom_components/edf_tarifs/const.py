@@ -1,24 +1,13 @@
 """Constants for the EDF Tarifs integration."""
 
-from datetime import timedelta
-
 DOMAIN = "edf_tarifs"
 
 # ---------------------------------------------------------------------------
-# Update intervals
+# Retry for couleur_demain when "Inconnu"
 # ---------------------------------------------------------------------------
 
-SCAN_INTERVAL_1H = timedelta(hours=1)
-SCAN_INTERVAL_6H = timedelta(hours=6)
-SCAN_INTERVAL_1D = timedelta(days=1)
-
-DEFAULT_SCAN_INTERVAL = SCAN_INTERVAL_6H
-
-AVAILABLE_SCAN_INTERVALS: dict[str, timedelta] = {
-    "1h": SCAN_INTERVAL_1H,
-    "6h": SCAN_INTERVAL_6H,
-    "1d": SCAN_INTERVAL_1D,
-}
+RETRY_INTERVAL_TOMORROW = 600  # 10 minutes in seconds
+MAX_TOMORROW_RETRIES = 36      # 6 hours / 10 minutes
 
 # ---------------------------------------------------------------------------
 # HTTP
@@ -86,7 +75,6 @@ CONF_HC_RANGES = "hc_ranges"
 CONF_POWER_KVA = "power_kva"
 CONF_RTE_CLIENT_ID = "rte_client_id"
 CONF_RTE_CLIENT_SECRET = "rte_client_secret"
-CONF_SCAN_INTERVAL = "scan_interval"
 
 # ---------------------------------------------------------------------------
 # Tempo colors

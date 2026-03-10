@@ -15,7 +15,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api_couleur_tempo import CouleurTempoClient, get_season_start
 from .api_datagouv import DataGouvClient
 from .const import (
-    AVAILABLE_SCAN_INTERVALS,
     COLOR_BLEU,
     COLOR_BLANC,
     COLOR_INCONNU,
@@ -23,18 +22,18 @@ from .const import (
     CONF_CONTRACT_TYPE,
     CONF_HC_RANGES,
     CONF_POWER_KVA,
-    CONF_SCAN_INTERVAL,
     CONTRACT_BASE,
     CONTRACT_HPHC,
     CONTRACT_TEMPO,
     DEFAULT_HC_RANGES_TEMPO,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     MAX_JOURS_BLANC,
     MAX_JOURS_BLEU,
     MAX_JOURS_ROUGE,
+    MAX_TOMORROW_RETRIES,
     PERIOD_HC,
     PERIOD_HP,
+    RETRY_INTERVAL_TOMORROW,
 )
 from .exceptions import CannotConnect, InvalidAuth
 
@@ -92,13 +91,11 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Coordinator qui orchestre toutes les sources de données EDF Tarifs."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
-        scan_key = entry.data.get(CONF_SCAN_INTERVAL, "6h")
-        interval = AVAILABLE_SCAN_INTERVALS.get(scan_key, DEFAULT_SCAN_INTERVAL)
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=interval,
+            update_interval=None,  # Polling disabled; daily 6AM + HC listeners
         )
         self._entry = entry
         self._contract_type: str = entry.data[CONF_CONTRACT_TYPE]
@@ -106,6 +103,9 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._hc_ranges: str = entry.data.get(CONF_HC_RANGES, DEFAULT_HC_RANGES_TEMPO)
         self._season_cache: dict[date, str] = {}
         self._unsub_hc_listeners: list[Callable] = []
+        self._unsub_daily_refresh: Callable | None = None
+        self._unsub_tomorrow_retry: Callable | None = None
+        self._tomorrow_retry_count: int = 0
 
     @staticmethod
     def _parse_hc_boundaries(hc_ranges: str) -> list[time]:
@@ -150,6 +150,76 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for unsub in self._unsub_hc_listeners:
             unsub()
         self._unsub_hc_listeners.clear()
+
+    # ------------------------------------------------------------------
+    # Daily 6:00 AM refresh
+    # ------------------------------------------------------------------
+
+    def setup_daily_listener(self) -> None:
+        """Planifie un refresh quotidien à 6h00."""
+        from homeassistant.helpers.event import async_track_time_change
+
+        self._unsub_daily_refresh = async_track_time_change(
+            self.hass,
+            self._handle_daily_refresh,
+            hour=6,
+            minute=0,
+            second=0,
+        )
+        _LOGGER.debug("Daily 6:00 AM refresh listener registered")
+
+    async def _handle_daily_refresh(self, _now: datetime) -> None:
+        """Callback déclenché à 6h00 chaque jour."""
+        _LOGGER.debug("Daily 6:00 AM refresh triggered")
+        self._tomorrow_retry_count = 0
+        await self.async_request_refresh()
+
+    def shutdown_daily_listener(self) -> None:
+        """Désinscrit le listener quotidien."""
+        if self._unsub_daily_refresh:
+            self._unsub_daily_refresh()
+            self._unsub_daily_refresh = None
+
+    # ------------------------------------------------------------------
+    # Retry couleur_demain when "Inconnu"
+    # ------------------------------------------------------------------
+
+    def _schedule_tomorrow_retry(self) -> None:
+        """Planifie un retry dans 10 min pour couleur_demain."""
+        from homeassistant.helpers.event import async_call_later
+
+        self._cancel_tomorrow_retry()
+        if self._tomorrow_retry_count >= MAX_TOMORROW_RETRIES:
+            _LOGGER.debug(
+                "Max retries (%d) reached for couleur_demain, stopping",
+                MAX_TOMORROW_RETRIES,
+            )
+            return
+
+        self._tomorrow_retry_count += 1
+        _LOGGER.debug(
+            "Scheduling couleur_demain retry %d/%d in %ds",
+            self._tomorrow_retry_count,
+            MAX_TOMORROW_RETRIES,
+            RETRY_INTERVAL_TOMORROW,
+        )
+        self._unsub_tomorrow_retry = async_call_later(
+            self.hass,
+            RETRY_INTERVAL_TOMORROW,
+            self._handle_tomorrow_retry,
+        )
+
+    async def _handle_tomorrow_retry(self, _now: datetime) -> None:
+        """Callback de retry pour couleur_demain."""
+        self._unsub_tomorrow_retry = None
+        _LOGGER.debug("Couleur demain retry triggered")
+        await self.async_request_refresh()
+
+    def _cancel_tomorrow_retry(self) -> None:
+        """Annule un éventuel retry en attente."""
+        if self._unsub_tomorrow_retry:
+            self._unsub_tomorrow_retry()
+            self._unsub_tomorrow_retry = None
 
     def _map_tarifs(self, raw: dict[str, float], key_map: dict[str, str]) -> dict[str, Any]:
         """Convertit les clés CSV en clés coordinator.data et calcule abonnement_mensuel."""
@@ -231,6 +301,14 @@ class EDFTempoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self._contract_type != CONTRACT_BASE:
             data["periode_actuelle"] = PERIOD_HC if is_hc_period(self._hc_ranges) else PERIOD_HP
             data["tarif_actuel"] = self._compute_tarif_actuel(data)
+
+        # ── 4. Retry si couleur_demain inconnue (Tempo) ──
+        if self._contract_type == CONTRACT_TEMPO:
+            if data.get("couleur_demain") == COLOR_INCONNU:
+                self._schedule_tomorrow_retry()
+            else:
+                self._cancel_tomorrow_retry()
+                self._tomorrow_retry_count = 0
 
         return data
 

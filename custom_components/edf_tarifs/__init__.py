@@ -20,9 +20,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = EDFTempoCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
     hass.data[DOMAIN][entry.entry_id] = coordinator
+    # Refresh quotidien à 6h00 (tous contrats)
+    coordinator.setup_daily_listener()
+    entry.async_on_unload(coordinator.shutdown_daily_listener)
+    # Transitions HC/HP en temps réel (non-Base)
     if entry.data.get(CONF_CONTRACT_TYPE) != CONTRACT_BASE:
         coordinator.setup_hc_listeners()
         entry.async_on_unload(coordinator.shutdown_hc_listeners)
+    # Cleanup retry couleur_demain
+    entry.async_on_unload(coordinator._cancel_tomorrow_retry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
     _LOGGER.debug("Setting up EDF Tarifs entry %s", entry.entry_id)

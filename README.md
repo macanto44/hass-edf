@@ -55,13 +55,12 @@ Intégration Home Assistant (HACS) pour suivre les **tarifs EDF** et les **coule
    - **Étape 1** : Type de contrat (Base / HP/HC / Tempo)
    - **Étape 2** : Puissance souscrite (3 / 6 / 9 / 12 / 15 kVA)
    - **Étape 3** : Plages heures creuses *(HP/HC et Tempo uniquement)* — défaut : `22:00-06:00`
-   - **Étape 4** : Fréquence de mise à jour (1h / 6h / 1j) — défaut : 6h
 
 ### Modifier les paramètres
 
 **Paramètres** > **Appareils et services** > **EDF Tarifs** > **Configurer**
 
-Vous pouvez modifier après installation : la puissance, les plages HC et la fréquence de mise à jour. Le type de contrat nécessite de supprimer et recréer l'intégration.
+Vous pouvez modifier après installation : la puissance et les plages HC. Le type de contrat nécessite de supprimer et recréer l'intégration. Les données sont rafraîchies automatiquement chaque matin à 6h00. Pour le contrat Tempo, si la couleur de demain n'est pas encore connue, un retry automatique a lieu toutes les 10 minutes (pendant 6h max).
 
 ## Entités créées
 
@@ -147,7 +146,7 @@ automation:
 ```
 custom_components/edf_tarifs/
 ├── __init__.py           # Setup de l'intégration
-├── config_flow.py        # Assistant de configuration (4 étapes)
+├── config_flow.py        # Assistant de configuration (3 étapes)
 ├── coordinator.py        # DataUpdateCoordinator (orchestration + cache)
 ├── sensor.py             # Sensors (tarifs, couleurs, compteurs)
 ├── binary_sensor.py      # Binary sensor heures creuses
