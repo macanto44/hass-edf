@@ -26,11 +26,11 @@ _TIMEOUT = aiohttp.ClientTimeout(total=HTTP_TIMEOUT)
 def get_season_start(today: date | None = None) -> date:
     """Retourne la date de début de saison Tempo (1er septembre).
 
-    Si le mois actuel est avant novembre, la saison a commencé en septembre
+    Si le mois actuel est avant septembre, la saison a commencé en septembre
     de l'année précédente.
     """
     ref = today or date.today()
-    if ref.month >= 11:
+    if ref.month >= 9:
         return date(ref.year, 9, 1)
     return date(ref.year - 1, 9, 1)
 
